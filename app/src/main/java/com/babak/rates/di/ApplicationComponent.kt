@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = [AndroidInjectionModule::class])
+@Component(modules = [AndroidInjectionModule::class, NetworkModule::class])
 interface ApplicationComponent : AndroidInjector<RatesApplication> {
 
 
