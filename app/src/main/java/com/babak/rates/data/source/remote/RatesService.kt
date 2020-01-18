@@ -8,5 +8,5 @@ import retrofit2.http.Query
 interface RatesService {
 
     @GET("latest")
-    fun getRates(@Query("base") base: String): Response<Rates>
+    suspend fun getRates(@Query("base") base: String): Response<Rates>
 }

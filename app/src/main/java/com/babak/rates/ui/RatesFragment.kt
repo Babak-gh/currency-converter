@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.babak.rates.R
@@ -22,6 +23,8 @@ class RatesFragment : DaggerFragment() {
     private var param1: String? = null
     private var param2: String? = null
     private var listenerRates: OnRatesFragmentInteractionListener? = null
+    private val rateData = mutableListOf<Rate>()
+    private val adapter = RatesAdapter(rateData)
 
 
     @Inject
@@ -50,6 +53,13 @@ class RatesFragment : DaggerFragment() {
 
         ratesRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        ratesRecyclerView.adapter = adapter
+
+        ratesViewModel.items.observe(viewLifecycleOwner, Observer { data ->
+            rateData.clear()
+            rateData.addAll(data)
+            adapter.notifyDataSetChanged()
+        })
 
 
     }
