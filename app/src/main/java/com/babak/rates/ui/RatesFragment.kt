@@ -19,7 +19,7 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 
-class RatesFragment : DaggerFragment() {
+class RatesFragment : DaggerFragment(), RatesAdapter.AdapterInterface {
     private var param1: String? = null
     private var param2: String? = null
     private var listenerRates: OnRatesFragmentInteractionListener? = null
@@ -53,12 +53,14 @@ class RatesFragment : DaggerFragment() {
 
         ratesRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        adapter.listener = this
         ratesRecyclerView.adapter = adapter
 
         ratesViewModel.items.observe(viewLifecycleOwner, Observer { data ->
             rateData.clear()
             rateData.addAll(data)
-            adapter.notifyDataSetChanged()
+            adapter.notifyItemRangeChanged(1, rateData.size - 1)
+
         })
 
 
@@ -78,6 +80,17 @@ class RatesFragment : DaggerFragment() {
         listenerRates = null
     }
 
+    override fun onItemClick(rate: Rate, position: Int) {
+
+        ratesViewModel.changeBaseCurrency(rate.currency)
+        adapter.notifyItemMoved(position, 0)
+        adapter.notifyItemChanged(0)
+    }
+
+    override fun onTextChange(newValue: String) {
+        ratesViewModel.valueChanged(newValue)
+    }
+
 
     interface OnRatesFragmentInteractionListener {
     }
@@ -92,4 +105,6 @@ class RatesFragment : DaggerFragment() {
                 }
             }
     }
+
+
 }

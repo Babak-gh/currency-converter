@@ -5,5 +5,5 @@ import retrofit2.Response
 
 interface RatesDataSource {
 
-    suspend fun getAllRates(): Response<Rates>
+    suspend fun getAllRates(baseCurrency: String): Response<Rates>
 }

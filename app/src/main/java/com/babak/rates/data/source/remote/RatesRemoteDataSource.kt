@@ -8,6 +8,6 @@ import javax.inject.Inject
 class RatesRemoteDataSource @Inject constructor(private val ratesService: RatesService) :
     RatesDataSource {
 
-    override suspend fun getAllRates(): Response<Rates> =
-        ratesService.getRates("EUR")
+    override suspend fun getAllRates(baseCurrency: String): Response<Rates> =
+        ratesService.getRates(baseCurrency)
 }
