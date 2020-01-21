@@ -8,15 +8,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.babak.rates.R
 import java.text.DecimalFormat
 
 
-class RatesAdapter(private val ratesData: List<Rate>) :
+class RatesAdapter :
     RecyclerView.Adapter<RatesAdapter.ViewHolder>() {
 
     var listener: AdapterInterface? = null
+
+    private val ratesData = mutableListOf<Rate>()
+
+    fun updateData(newList: List<Rate>) {
+        val diffResult = DiffUtil.calculateDiff(RateDiffCallback(ratesData, newList))
+        diffResult.dispatchUpdatesTo(this)
+        ratesData.clear()
+        ratesData.addAll(newList)
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,6 +44,19 @@ class RatesAdapter(private val ratesData: List<Rate>) :
         return ratesData.size
     }
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            return super.onBindViewHolder(holder, position, payloads)
+        } else {
+
+            val combinedChange = createCombinedPayload(payloads as List<Change<Rate>>)
+            val oldData = combinedChange.oldData
+            val newData = combinedChange.newData
+
+            holder.bindPayLoad(oldData, newData)
+        }
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val rate = ratesData[position]
@@ -48,6 +71,32 @@ class RatesAdapter(private val ratesData: List<Rate>) :
         private val valueEditText = view.findViewById<EditText>(R.id.valueEditText)
         private val textWatcher = positionTextWatcher
 
+        fun bindPayLoad(oldData: Rate, newData: Rate) {
+            if (newData.value != oldData.value) {
+                valueEditText.setText(DecimalFormat("##.####").format(newData.value))
+            }
+
+            if (newData.currency != oldData.currency) {
+                currencyTextView.text = newData.currency
+            }
+
+            if (adapterPosition == 0) {
+                valueEditText.requestFocus()
+                valueEditText.addTextChangedListener(textWatcher)
+                textWatcher.updatePosition(adapterPosition)
+            } else {
+                valueEditText.clearFocus()
+                valueEditText.removeTextChangedListener(textWatcher)
+            }
+
+            view.setOnClickListener {
+                if (adapterPosition != 0) {
+                    listener?.onItemClick(newData)
+                }
+            }
+
+        }
+
         fun bind(rate: Rate) {
             if (adapterPosition == 0) {
                 valueEditText.requestFocus()
@@ -57,11 +106,12 @@ class RatesAdapter(private val ratesData: List<Rate>) :
                 valueEditText.clearFocus()
                 valueEditText.removeTextChangedListener(textWatcher)
             }
+
             currencyTextView.text = rate.currency
             valueEditText.setText(DecimalFormat("##.####").format(rate.value))
             view.setOnClickListener {
                 if (adapterPosition != 0) {
-                    listener?.onItemClick(rate, adapterPosition)
+                    listener?.onItemClick(rate)
                 }
             }
         }
@@ -92,7 +142,42 @@ class RatesAdapter(private val ratesData: List<Rate>) :
     }
 
     interface AdapterInterface {
-        fun onItemClick(rate: Rate, position: Int)
+        fun onItemClick(rate: Rate)
         fun onTextChange(newValue: String)
+    }
+
+    class RateDiffCallback(private val oldList: List<Rate>, private val newList: List<Rate>) :
+        DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].currency == newList[newItemPosition].currency
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+
+        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+            /*return if(oldList[oldItemPosition].value != newList[newItemPosition].value){
+                newList[newItemPosition].value
+            }
+            else{
+                null
+            }*/
+
+            return Change(
+                oldList[oldItemPosition],
+                newList[newItemPosition]
+            )
+        }
+
     }
 }

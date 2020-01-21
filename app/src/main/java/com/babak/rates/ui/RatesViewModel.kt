@@ -21,9 +21,14 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
     val dataLoading: LiveData<Boolean> = _dataLoading
 
 
+    private val _isChangeCurrency = MutableLiveData<Boolean>().apply { value = false }
+    val isChangeCurrency: LiveData<Boolean> = _isChangeCurrency
+
+    private var currencyChanged = false
+
     private var job: Job? = null
     private var baseValue = 1.0
-    private var baseCurrency = "EUR"
+    private var baseCurrency = "GBP"
 
     init {
         startFetchingRates(baseCurrency, baseValue)
@@ -44,14 +49,22 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
 
                     }
 
+                    if (currencyChanged) {
+                        currencyChanged = false
+                        _isChangeCurrency.postValue(true)
+                    }
+
                 }
+
                 delay(1000)
             }
         }
     }
 
-    fun changeBaseCurrency(currency: String) {
+    fun changeBaseCurrency(currency: String, value: Double) {
         job?.cancel()
+        currencyChanged = true
+        baseValue = value
         baseCurrency = currency
         startFetchingRates(baseCurrency, baseValue)
     }

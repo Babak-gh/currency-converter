@@ -23,8 +23,8 @@ class RatesFragment : DaggerFragment(), RatesAdapter.AdapterInterface {
     private var param1: String? = null
     private var param2: String? = null
     private var listenerRates: OnRatesFragmentInteractionListener? = null
-    private val rateData = mutableListOf<Rate>()
-    private val adapter = RatesAdapter(rateData)
+    private val adapter = RatesAdapter()
+    private lateinit var linearLayoutManager: LinearLayoutManager
 
 
     @Inject
@@ -51,16 +51,22 @@ class RatesFragment : DaggerFragment(), RatesAdapter.AdapterInterface {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        ratesRecyclerView.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        ratesRecyclerView.layoutManager = linearLayoutManager
+
         adapter.listener = this
         ratesRecyclerView.adapter = adapter
 
         ratesViewModel.items.observe(viewLifecycleOwner, Observer { data ->
-            rateData.clear()
-            rateData.addAll(data)
-            adapter.notifyItemRangeChanged(1, rateData.size - 1)
 
+            adapter.updateData(data)
+
+        })
+
+        ratesViewModel.isChangeCurrency.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                linearLayoutManager.scrollToPositionWithOffset(0, 0)
+            }
         })
 
 
@@ -80,11 +86,10 @@ class RatesFragment : DaggerFragment(), RatesAdapter.AdapterInterface {
         listenerRates = null
     }
 
-    override fun onItemClick(rate: Rate, position: Int) {
+    override fun onItemClick(rate: Rate) {
 
-        ratesViewModel.changeBaseCurrency(rate.currency)
-        adapter.notifyItemMoved(position, 0)
-        adapter.notifyItemChanged(0)
+        ratesViewModel.changeBaseCurrency(rate.currency, rate.value)
+
     }
 
     override fun onTextChange(newValue: String) {
