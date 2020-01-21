@@ -8,14 +8,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.babak.rates.R
+import com.babak.rates.util.getCurrencyNameResourceId
+import com.babak.rates.util.getFlagResourceId
+import com.bumptech.glide.Glide
 import java.text.DecimalFormat
+import java.util.*
 
 
 class RatesAdapter :
     RecyclerView.Adapter<RatesAdapter.ViewHolder>() {
+
+
+    private val decimalFormat = DecimalFormat("##.####")
 
     var listener: AdapterInterface? = null
 
@@ -68,12 +76,15 @@ class RatesAdapter :
         RecyclerView.ViewHolder(view) {
 
         private val currencyTextView = view.findViewById<TextView>(R.id.currencyTextView)
+        private val currencyNameTextView = view.findViewById<TextView>(R.id.currencyNameTextView)
         private val valueEditText = view.findViewById<EditText>(R.id.valueEditText)
+        private val countryImageView =
+            view.findViewById<AppCompatImageView>(R.id.countryFlagImageView)
         private val textWatcher = positionTextWatcher
 
         fun bindPayLoad(oldData: Rate, newData: Rate) {
             if (newData.value != oldData.value) {
-                valueEditText.setText(DecimalFormat("##.####").format(newData.value))
+                valueEditText.setText(decimalFormat.format(newData.value))
             }
 
             if (newData.currency != oldData.currency) {
@@ -109,8 +120,22 @@ class RatesAdapter :
                 valueEditText.removeTextChangedListener(textWatcher)
             }
 
+            val currencySymbolLowerCase = rate.currency.toLowerCase(Locale.ENGLISH)
+
+            Glide
+                .with(view)
+                .load(getFlagResourceId(view.context, currencySymbolLowerCase))
+                .placeholder(R.drawable.ic_flag_default)
+                .into(countryImageView)
+
+            currencyNameTextView.text = view.resources.getText(
+                getCurrencyNameResourceId(
+                    view.context,
+                    currencySymbolLowerCase
+                )
+            )
             currencyTextView.text = rate.currency
-            valueEditText.setText(DecimalFormat("##.####").format(rate.value))
+            valueEditText.setText(decimalFormat.format(rate.value))
             view.setOnClickListener {
                 if (adapterPosition != 0) {
                     listener?.onItemClick(rate)

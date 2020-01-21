@@ -1,6 +1,8 @@
 package com.babak.rates.di
 
+import android.content.Context
 import com.babak.rates.RatesApplication
+import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
@@ -20,11 +22,9 @@ import javax.inject.Singleton
 interface ApplicationComponent : AndroidInjector<RatesApplication> {
 
 
-/*    @Component.Factory
+    @Component.Factory
     interface Factory {
         fun create(@BindsInstance applicationContext: Context): ApplicationComponent
-    }*/
-
-    //fun ratesRepository(): RatesRepository
+    }
 
 }

@@ -6,7 +6,7 @@ import dagger.android.support.DaggerApplication
 
 class RatesApplication : DaggerApplication() {
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerApplicationComponent.create()
+        return DaggerApplicationComponent.factory().create(applicationContext)
     }
 
 
