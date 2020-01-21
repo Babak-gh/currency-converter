@@ -83,7 +83,8 @@ class RatesAdapter :
             if (adapterPosition == 0) {
                 valueEditText.requestFocus()
                 valueEditText.addTextChangedListener(textWatcher)
-                textWatcher.updatePosition(adapterPosition)
+                valueEditText.setSelection(valueEditText.text.length)
+                textWatcher.updatePosition(adapterPosition, valueEditText)
             } else {
                 valueEditText.clearFocus()
                 valueEditText.removeTextChangedListener(textWatcher)
@@ -101,7 +102,8 @@ class RatesAdapter :
             if (adapterPosition == 0) {
                 valueEditText.requestFocus()
                 valueEditText.addTextChangedListener(textWatcher)
-                textWatcher.updatePosition(adapterPosition)
+                valueEditText.setSelection(valueEditText.text.length)
+                textWatcher.updatePosition(adapterPosition, valueEditText)
             } else {
                 valueEditText.clearFocus()
                 valueEditText.removeTextChangedListener(textWatcher)
@@ -121,9 +123,11 @@ class RatesAdapter :
     inner class PositionTextWatcher : TextWatcher {
 
         private var position = 0
+        private lateinit var editText: EditText
 
-        fun updatePosition(position: Int) {
+        fun updatePosition(position: Int, valueEditText: EditText) {
             this.position = position
+            this.editText = valueEditText
         }
 
         override fun afterTextChanged(s: Editable?) {
@@ -134,8 +138,8 @@ class RatesAdapter :
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            Log.d("Fuck", s.toString() + " pos:" + position)
-            if (s?.isNotEmpty()!!) {
+            Log.d("Test", s.toString() + " pos:" + position)
+            if (editText.hasFocus() && s?.isNotEmpty()!!) {
                 listener?.onTextChange(s.toString())
             }
         }
@@ -166,12 +170,6 @@ class RatesAdapter :
         }
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            /*return if(oldList[oldItemPosition].value != newList[newItemPosition].value){
-                newList[newItemPosition].value
-            }
-            else{
-                null
-            }*/
 
             return Change(
                 oldList[oldItemPosition],

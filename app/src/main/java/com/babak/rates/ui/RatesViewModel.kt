@@ -64,7 +64,7 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
     fun changeBaseCurrency(currency: String, value: Double) {
         job?.cancel()
         currencyChanged = true
-        baseValue = value
+        //baseValue = value
         baseCurrency = currency
         startFetchingRates(baseCurrency, baseValue)
     }
