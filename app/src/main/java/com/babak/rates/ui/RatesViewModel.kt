@@ -20,6 +20,9 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean> = _dataLoading
 
+    private val _error = MutableLiveData<Error>()
+    val error: LiveData<Error> = _error
+
 
     private val _isChangeCurrency = MutableLiveData<Boolean>().apply { value = false }
     val isChangeCurrency: LiveData<Boolean> = _isChangeCurrency
@@ -31,6 +34,7 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
     private var baseCurrency = "GBP"
 
     init {
+        _dataLoading.value = true
         startFetchingRates(baseCurrency, baseValue)
     }
 
@@ -38,17 +42,25 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
         job = viewModelScope.launch {
             while (true) {
                 ratesRepository.getAllRates(baseCurrency).let { result ->
-                    if (result is Result.Success) {
-                        val tempList = mutableListOf<Rate>()
-                        tempList.add(Rate(baseCurrency, baseValue))
-                        result.data?.rates?.map {
-                            tempList.add(Rate(it.key, it.value * baseValue))
-                        }
-                        _items.postValue(tempList)
-                    } else {
 
+                    when (result) {
+                        is Result.Success -> {
+                            val tempList = mutableListOf<Rate>()
+                            tempList.add(Rate(baseCurrency, baseValue))
+                            result.data?.rates?.map {
+                                tempList.add(Rate(it.key, it.value * baseValue))
+                            }
+                            _items.postValue(tempList)
+                        }
+                        is Result.NetworkError -> {
+                            _error.postValue(Error("Network Error: Please Check Your Internet Connection"))
+                        }
+                        is Result.GenericError -> {
+                            _error.postValue(Error(result.error ?: "Unknown Error"))
+                        }
                     }
 
+                    _dataLoading.postValue(false)
                     if (currencyChanged) {
                         currencyChanged = false
                         _isChangeCurrency.postValue(true)

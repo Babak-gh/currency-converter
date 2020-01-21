@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.babak.rates.R
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_rates.*
 import javax.inject.Inject
@@ -67,6 +68,18 @@ class RatesFragment : DaggerFragment(), RatesAdapter.AdapterInterface {
             if (it) {
                 linearLayoutManager.scrollToPositionWithOffset(0, 0)
             }
+        })
+
+        ratesViewModel.dataLoading.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                progressBar.visibility = View.VISIBLE
+            } else {
+                progressBar.visibility = View.GONE
+            }
+        })
+
+        ratesViewModel.error.observe(viewLifecycleOwner, Observer {
+            Snackbar.make(view, it.message, Snackbar.LENGTH_SHORT).show()
         })
 
 
