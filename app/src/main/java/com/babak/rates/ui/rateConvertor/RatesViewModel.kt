@@ -1,4 +1,4 @@
-package com.babak.rates.ui
+package com.babak.rates.ui.rateConvertor
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.babak.rates.data.Result
 import com.babak.rates.data.source.RatesRepository
+import com.babak.rates.ui.model.Error
+import com.babak.rates.ui.model.Rate
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,9 +48,19 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
                     when (result) {
                         is Result.Success -> {
                             val tempList = mutableListOf<Rate>()
-                            tempList.add(Rate(baseCurrency, baseValue))
+                            tempList.add(
+                                Rate(
+                                    baseCurrency,
+                                    baseValue
+                                )
+                            )
                             result.data?.rates?.map {
-                                tempList.add(Rate(it.key, it.value * baseValue))
+                                tempList.add(
+                                    Rate(
+                                        it.key,
+                                        it.value * baseValue
+                                    )
+                                )
                             }
                             _items.postValue(tempList)
                         }
@@ -56,7 +68,11 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
                             _error.postValue(Error("Network Error: Please Check Your Internet Connection"))
                         }
                         is Result.GenericError -> {
-                            _error.postValue(Error(result.error ?: "Unknown Error"))
+                            _error.postValue(
+                                Error(
+                                    result.error ?: "Unknown Error"
+                                )
+                            )
                         }
                     }
 
@@ -85,6 +101,11 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
         job?.cancel()
         baseValue = newValue.toDouble()
         startFetchingRates(baseCurrency, baseValue)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        job?.cancel()
     }
 
 }

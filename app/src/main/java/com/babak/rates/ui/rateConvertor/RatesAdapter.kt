@@ -1,8 +1,5 @@
-package com.babak.rates.ui
+package com.babak.rates.ui.rateConvertor
 
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +9,9 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.babak.rates.R
+import com.babak.rates.ui.model.Rate
+import com.babak.rates.util.Change
+import com.babak.rates.util.createCombinedPayload
 import com.babak.rates.util.getCurrencyNameResourceId
 import com.babak.rates.util.getFlagResourceId
 import com.bumptech.glide.Glide
@@ -25,12 +25,17 @@ class RatesAdapter :
 
     private val decimalFormat = DecimalFormat("##.####")
 
-    var listener: AdapterInterface? = null
+    var listener: RateAdapterInterface? = null
 
     private val ratesData = mutableListOf<Rate>()
 
     fun updateData(newList: List<Rate>) {
-        val diffResult = DiffUtil.calculateDiff(RateDiffCallback(ratesData, newList))
+        val diffResult = DiffUtil.calculateDiff(
+            RateDiffCallback(
+                ratesData,
+                newList
+            )
+        )
         diffResult.dispatchUpdatesTo(this)
         ratesData.clear()
         ratesData.addAll(newList)
@@ -44,7 +49,7 @@ class RatesAdapter :
                 parent,
                 false
             ),
-            PositionTextWatcher()
+            RateTextWatcher()
         )
     }
 
@@ -57,7 +62,8 @@ class RatesAdapter :
             return super.onBindViewHolder(holder, position, payloads)
         } else {
 
-            val combinedChange = createCombinedPayload(payloads as List<Change<Rate>>)
+            val combinedChange =
+                createCombinedPayload(payloads as List<Change<Rate>>)
             val oldData = combinedChange.oldData
             val newData = combinedChange.newData
 
@@ -72,7 +78,7 @@ class RatesAdapter :
     }
 
 
-    inner class ViewHolder(private val view: View, positionTextWatcher: PositionTextWatcher) :
+    inner class ViewHolder(private val view: View, rateTextWatcher: RateTextWatcher) :
         RecyclerView.ViewHolder(view) {
 
         private val currencyTextView = view.findViewById<TextView>(R.id.currencyTextView)
@@ -80,11 +86,11 @@ class RatesAdapter :
         private val valueEditText = view.findViewById<EditText>(R.id.valueEditText)
         private val countryImageView =
             view.findViewById<AppCompatImageView>(R.id.countryFlagImageView)
-        private val textWatcher = positionTextWatcher
+        private val textWatcher = rateTextWatcher
 
         fun bindPayLoad(oldData: Rate, newData: Rate) {
             if (newData.value != oldData.value) {
-                valueEditText.setText(decimalFormat.format(newData.value))
+                valueEditText.setText(newData.formattedValue)
             }
 
             if (newData.currency != oldData.currency) {
@@ -95,7 +101,7 @@ class RatesAdapter :
                 valueEditText.requestFocus()
                 valueEditText.addTextChangedListener(textWatcher)
                 valueEditText.setSelection(valueEditText.text.length)
-                textWatcher.updatePosition(adapterPosition, valueEditText)
+                textWatcher.updatePosition(adapterPosition, valueEditText, listener!!)
             } else {
                 valueEditText.clearFocus()
                 valueEditText.removeTextChangedListener(textWatcher)
@@ -114,7 +120,7 @@ class RatesAdapter :
                 valueEditText.requestFocus()
                 valueEditText.addTextChangedListener(textWatcher)
                 valueEditText.setSelection(valueEditText.text.length)
-                textWatcher.updatePosition(adapterPosition, valueEditText)
+                textWatcher.updatePosition(adapterPosition, valueEditText, listener!!)
             } else {
                 valueEditText.clearFocus()
                 valueEditText.removeTextChangedListener(textWatcher)
@@ -135,7 +141,7 @@ class RatesAdapter :
                 )
             )
             currencyTextView.text = rate.currency
-            valueEditText.setText(decimalFormat.format(rate.value))
+            valueEditText.setText(rate.formattedValue)
             view.setOnClickListener {
                 if (adapterPosition != 0) {
                     listener?.onItemClick(rate)
@@ -145,62 +151,5 @@ class RatesAdapter :
 
     }
 
-    inner class PositionTextWatcher : TextWatcher {
 
-        private var position = 0
-        private lateinit var editText: EditText
-
-        fun updatePosition(position: Int, valueEditText: EditText) {
-            this.position = position
-            this.editText = valueEditText
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-        }
-
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            Log.d("Test", s.toString() + " pos:" + position)
-            if (editText.hasFocus() && s?.isNotEmpty()!!) {
-                listener?.onTextChange(s.toString())
-            }
-        }
-    }
-
-    interface AdapterInterface {
-        fun onItemClick(rate: Rate)
-        fun onTextChange(newValue: String)
-    }
-
-    class RateDiffCallback(private val oldList: List<Rate>, private val newList: List<Rate>) :
-        DiffUtil.Callback() {
-
-        override fun getOldListSize(): Int {
-            return oldList.size
-        }
-
-        override fun getNewListSize(): Int {
-            return newList.size
-        }
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].currency == newList[newItemPosition].currency
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition]
-        }
-
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-
-            return Change(
-                oldList[oldItemPosition],
-                newList[newItemPosition]
-            )
-        }
-
-    }
 }

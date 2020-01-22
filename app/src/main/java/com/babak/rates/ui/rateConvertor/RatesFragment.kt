@@ -1,4 +1,4 @@
-package com.babak.rates.ui
+package com.babak.rates.ui.rateConvertor
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,14 +9,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.babak.rates.R
+import com.babak.rates.ui.model.Rate
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_rates.*
 import javax.inject.Inject
 
 
-
-class RatesFragment : DaggerFragment(), RatesAdapter.AdapterInterface {
+class RatesFragment : DaggerFragment(), RateAdapterInterface {
 
     private val adapter = RatesAdapter()
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -72,9 +72,7 @@ class RatesFragment : DaggerFragment(), RatesAdapter.AdapterInterface {
     }
 
     override fun onItemClick(rate: Rate) {
-
         ratesViewModel.changeBaseCurrency(rate.currency, rate.value)
-
     }
 
     override fun onTextChange(newValue: String) {

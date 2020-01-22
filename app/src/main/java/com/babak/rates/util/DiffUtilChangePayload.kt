@@ -1,4 +1,4 @@
-package com.babak.rates.ui
+package com.babak.rates.util
 
 data class Change<out T>(
     val oldData: T,
