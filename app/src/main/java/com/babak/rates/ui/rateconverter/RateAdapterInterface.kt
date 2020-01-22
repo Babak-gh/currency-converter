@@ -1,4 +1,4 @@
-package com.babak.rates.ui.rateConvertor
+package com.babak.rates.ui.rateconverter
 
 import com.babak.rates.ui.model.Rate
 

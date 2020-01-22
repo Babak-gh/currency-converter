@@ -1,8 +1,8 @@
 package com.babak.rates.di
 
 import androidx.lifecycle.ViewModel
-import com.babak.rates.ui.rateConvertor.RatesFragment
-import com.babak.rates.ui.rateConvertor.RatesViewModel
+import com.babak.rates.ui.rateconverter.RatesFragment
+import com.babak.rates.ui.rateconverter.RatesViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector

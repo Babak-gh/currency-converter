@@ -1,4 +1,4 @@
-package com.babak.rates.ui.rateConvertor
+package com.babak.rates.ui.rateconverter
 
 import android.view.LayoutInflater
 import android.view.View

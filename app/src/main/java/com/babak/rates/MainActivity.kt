@@ -2,7 +2,7 @@ package com.babak.rates
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.babak.rates.ui.rateConvertor.RatesFragment
+import com.babak.rates.ui.rateconverter.RatesFragment
 
 class MainActivity : AppCompatActivity() {
 

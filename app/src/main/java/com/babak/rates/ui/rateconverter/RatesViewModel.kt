@@ -1,4 +1,4 @@
-package com.babak.rates.ui.rateConvertor
+package com.babak.rates.ui.rateconverter
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

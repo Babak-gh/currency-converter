@@ -5,7 +5,7 @@ import com.babak.rates.LiveDataTestUtil
 import com.babak.rates.MainCoroutineRule
 import com.babak.rates.data.Result
 import com.babak.rates.data.source.RatesRepository
-import com.babak.rates.ui.rateConvertor.RatesViewModel
+import com.babak.rates.ui.rateconverter.RatesViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
