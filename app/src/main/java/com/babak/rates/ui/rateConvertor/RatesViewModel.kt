@@ -32,7 +32,7 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
     private var currencyChanged = false
 
     private var job: Job? = null
-    private var baseValue = 1.0
+    var baseValue = 1.0
     private var baseCurrency = "GBP"
 
     init {
@@ -40,7 +40,7 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
         startFetchingRates(baseCurrency, baseValue)
     }
 
-    private fun startFetchingRates(baseCurrency: String, baseValue: Double) {
+    fun startFetchingRates(baseCurrency: String, baseValue: Double) {
         job = viewModelScope.launch {
             while (true) {
                 ratesRepository.getAllRates(baseCurrency).let { result ->
@@ -89,10 +89,9 @@ class RatesViewModel @Inject constructor(private val ratesRepository: RatesRepos
         }
     }
 
-    fun changeBaseCurrency(currency: String, value: Double) {
+    fun changeBaseCurrency(currency: String) {
         job?.cancel()
         currencyChanged = true
-        //baseValue = value
         baseCurrency = currency
         startFetchingRates(baseCurrency, baseValue)
     }

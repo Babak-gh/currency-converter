@@ -72,7 +72,7 @@ class RatesFragment : DaggerFragment(), RateAdapterInterface {
     }
 
     override fun onItemClick(rate: Rate) {
-        ratesViewModel.changeBaseCurrency(rate.currency, rate.value)
+        ratesViewModel.changeBaseCurrency(rate.currency)
     }
 
     override fun onTextChange(newValue: String) {
